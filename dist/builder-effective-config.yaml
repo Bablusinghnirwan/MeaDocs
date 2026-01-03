@@ -1,0 +1,45 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.meadocs.app
+productName: MeaDocs
+files:
+  - filter:
+      - main.js
+      - preload.js
+      - loading.html
+      - particles.min.js
+      - particles-config.js
+      - meadocs.jpg
+      - '!dist'
+      - '!python-runtime'
+      - '!.venv'
+      - '!__pycache__'
+      - '!.git'
+asarUnpack: []
+win:
+  target: nsis
+  icon: build/icon.ico
+  sign: null
+  signingHashAlgorithms: []
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: MeaDocs
+  include: installer.nsh
+  license: privacy_policy.txt
+extraResources:
+  - from: build/vc_redist.x64.exe
+    to: vc_redist.x64.exe
+  - from: backend_build/meadoc_server
+    to: meadoc_server
+    filter:
+      - '**/*'
+publish:
+  - provider: github
+    owner: Bablusinghnirwan
+    repo: MeaDocs
+electronVersion: 39.2.3
