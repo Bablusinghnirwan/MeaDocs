@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeaDocs - AI Image Search</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* --- Base Variables & Reset --- */
+    :root {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #020617;
+      --card-bg: #1e293b;
+      --input-bg: #0f172a;
+      --accent-color: #38bdf8;
+      --text-color: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- Header --- */
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin: 0;
+    }
+
+    p.subtitle {
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 40px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .home-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .home-btn:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      color: white;
+    }
+
+    .home-btn i {
+      font-size: 1.2rem;
+    }
+
+    /* --- Action Sections (Cards) --- */
+    .action-section {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 20px;
+      font-weight: 600;
+      border-left: 4px solid var(--accent-color);
+      padding-left: 15px;
+    }
+
+    /* --- Inputs --- */
+    .input-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .input-group input[type="text"] {
+      flex-grow: 1;
+      max-width: 800px;
+      padding: 16px 25px;
+      font-size: 1rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      outline: none;
+      background: var(--input-bg);
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input[type="text"]:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+      background: #162032;
+    }
+
+    /* --- Modern Buttons --- */
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: transparent;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      overflow: hidden;
+      z-index: 1;
+      transition: transform 0.2s ease;
+      min-width: 140px;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: conic-gradient(from 90deg, transparent 0%, transparent 40%, var(--accent-color) 50%, transparent 60%, transparent 100%);
+      animation: borderSpin 3s linear infinite;
+      z-index: -2;
+    }
+
+    @keyframes borderSpin {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      background: #0f172a;
+      border-radius: 9999px;
+      z-index: -1;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:hover::after {
+      background: #1e293b;
+    }
+
+    .btn:hover::before {
+      animation-duration: 1.5s;
+      background: conic-gradient(from 90deg, transparent 0%, transparent 20%, #ffffff 50%, transparent 80%, transparent 100%);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    /* --- Results Grid (COMPACT / HALF SIZE) --- */
+    .results-grid {
+      display: grid;
+      /* Changed minmax from ~240px to 150px for smaller cards */
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+      /* Slightly smaller gap */
+      margin-top: 30px;
+    }
+
+    .result-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      /* Slightly smaller radius */
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .result-item .image-container {
+      position: relative;
+      width: 100%;
+      /* Reduced height from 200px to 110px (Half size feel) */
+      height: 110px;
+      overflow: hidden;
+    }
+
+    .result-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .result-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .result-item .info {
+      padding: 10px 12px;
+      /* Reduced padding for compact look */
+      background: linear-gradient(to bottom, var(--card-bg), #162032);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .result-item .filename {
+      font-size: 0.85rem;
+      /* Slightly smaller text */
+      color: white;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+
+    .result-item .score {
+      font-size: 0.7rem;
+      /* Smaller score text */
+      color: var(--accent-color);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .result-item .score::before {
+      content: "★";
+      font-size: 0.75rem;
+    }
+
+    /* Compact Overlay Buttons */
+    .actions-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      /* Darker overlay for better icon contrast */
+      backdrop-filter: blur(2px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      /* Reduced gap */
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .result-item:hover .actions-overlay {
+      opacity: 1;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      /* Smaller button size to fit small container */
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(10px);
+    }
+
+    .result-item:hover .action-btn {
+      transform: translateY(0);
+    }
+
+    .action-btn:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+    }
+
+    .action-btn svg {
+      /* Smaller Icon Size */
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .status-message.success {
+      color: #4ade80;
+    }
+
+    .status-message.error {
+      color: #f87171;
+    }
+
+    /* --- NEW BAR ANIMATION LOADER --- */
+    .loader {
+      display: none;
+      /* Hidden by default */
+      align-items: center;
+      justify-content: center;
+      margin: 40px auto;
+    }
+
+    .bar {
+      display: inline-block;
+      width: 6px;
+      height: 25px;
+      background-color: rgba(255, 255, 255, .5);
+      border-radius: 10px;
+      animation: scale-up4 1s linear infinite;
+    }
+
+    .bar:nth-child(2) {
+      height: 40px;
+      margin: 0 8px;
+      animation-delay: .25s;
+    }
+
+    .bar:nth-child(3) {
+      animation-delay: .5s;
+    }
+
+    @keyframes scale-up4 {
+      20% {
+        background-color: var(--accent-color);
+        /* #38bdf8 */
+        transform: scaleY(1.6);
+      }
+
+      40% {
+        transform: scaleY(1);
+      }
+    }
+
+    /* --- Modals --- */
+    #fullscreen-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 6, 23, 0.95);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #fullscreen-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    #close-fullscreen {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      font-size: 3rem;
+      color: white;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    #close-fullscreen:hover {
+      opacity: 1;
+    }
+
+    #copy-confirm {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-color);
+      color: #000;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 30px;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      box-shadow: 0 5px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    #search-section {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .action-section {
+        padding: 25px;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .input-group input[type="text"],
+      .btn {
+        width: 100%;
+      }
+
+      .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <a href="/" class="home-btn" aria-label="Go to Homepage">
+        <i class="fa-solid fa-house"></i>
+      </a>
+      <h1>MeaDocs</h1>
+    </header>
+    <p class="subtitle">Ask AI, Find Your Moments - Image Search</p>
+
+    <!-- Indexing Section -->
+    <div class="action-section" id="indexing-section">
+      <h2 class="section-title">1. Index Your Images</h2>
+      <div class="input-group">
+        <input type="text" id="directory" placeholder="Enter image directory path (e.g., C:/Users/Name/Pictures)">
+        <button class="btn" id="index-btn" onclick="indexImages()">Index Images</button>
+      </div>
+      <div id="indexing-status" class="status-message"></div>
+    </div>
+
+    <!-- Search Section -->
+    <div id="search-section">
+      <div class="action-section">
+        <h2 class="section-title">2. Search Your Images</h2>
+        <div class="input-group">
+          <input type="text" id="search-query" placeholder="Describe the image you're looking for...">
+          <button class="btn" onclick="searchImages()">Search</button>
+        </div>
+      </div>
+
+      <!-- UPDATED LOADER STRUCTURE -->
+      <div id="loader" class="loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+
+      <div id="results" class="results-grid"></div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Modal -->
+  <div id="fullscreen-modal">
+    <span id="close-fullscreen">&times;</span>
+    <img id="fullscreen-image" src="" alt="Fullscreen Image">
+  </div>
+
+  <div id="copy-confirm" style="display: none;">Link copied to clipboard!</div>
+
+  <script>
+    const indexingSection = document.getElementById('indexing-section');
+    const searchSection = document.getElementById('search-section');
+    const indexBtn = document.getElementById('index-btn');
+    const indexingStatus = document.getElementById('indexing-status');
+    const loader = document.getElementById('loader');
+    const resultsDiv = document.getElementById("results");
+    const fullscreenModal = document.getElementById('fullscreen-modal');
+    const fullscreenImage = document.getElementById('fullscreen-image');
+    const closeFullscreenBtn = document.getElementById('close-fullscreen');
+
+    function indexImages() {
+      const directory = document.getElementById("directory").value;
+      if (!directory) {
+        indexingStatus.textContent = "Please enter a directory path.";
+        indexingStatus.className = "status-message error";
+        return;
+      }
+      indexBtn.disabled = true;
+      indexingStatus.textContent = "Indexing in progress...";
+      indexingStatus.className = "status-message";
+
+      fetch("/index-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ directory: directory })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.indexed) {
+            indexingSection.style.opacity = '0';
+            setTimeout(() => {
+              indexingSection.style.display = 'none';
+              searchSection.style.display = 'block';
+              setTimeout(() => {
+                searchSection.style.opacity = '1';
+                searchSection.style.transform = 'translateY(0)';
+              }, 50);
+            }, 500);
+          } else {
+            indexingStatus.textContent = "Error: " + data.error;
+            indexingStatus.className = "status-message error";
+            indexBtn.disabled = false;
+          }
+        })
+        .catch(error => {
+          console.error("Indexing error:", error);
+          indexingStatus.textContent = "An error occurred while indexing.";
+          indexingStatus.className = "status-message error";
+          indexBtn.disabled = false;
+        });
+    }
+
+    function searchImages() {
+      const query = document.getElementById("search-query").value;
+      if (!query) {
+        alert("Please enter a search query.");
+        return;
+      }
+
+      // Use flex to display the bars correctly centered
+      loader.style.display = 'flex';
+      resultsDiv.innerHTML = "";
+
+      fetch("/search-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "query=" + encodeURIComponent(query)
+      })
+        .then(response => response.json())
+        .then(data => {
+          loader.style.display = 'none';
+          if (data.error) {
+            resultsDiv.innerHTML = `<p class="status-message error">${data.error}</p>`;
+          } else if (data.length === 0) {
+            resultsDiv.innerHTML = `<p>No results found for your query.</p>`;
+          } else {
+            data.forEach(item => {
+              const imgPath = "/serve-image?path=" + encodeURIComponent(item.path);
+              const filename = item.path.split(/[\\/]/).pop();
+              resultsDiv.innerHTML += `
+              <div class="result-item">
+                <div class="image-container">
+                    <img src="${imgPath}" alt="${filename}" onerror="this.style.display='none'">
+                    <div class="actions-overlay">
+                        <button class="action-btn" title="View Fullscreen" onclick="openFullscreen('${imgPath}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 2h-2v3h-3v2h5v-5zm-3-2V5h-2v2h-3v2h5z"/></svg>
+                        </button>
+                        <button class="action-btn" title="Share" onclick="shareImage('${window.location.origin}${imgPath}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="info">
+                    <p class="filename" title="${item.path}">${filename}</p>
+                    <p class="score">Score: ${item.score.toFixed(4)}</p>
+                </div>
+              </div>
+            `;
+            });
+          }
+        })
+        .catch(error => {
+          loader.style.display = 'none';
+          console.error("Search error:", error);
+          resultsDiv.innerHTML = `<p class="status-message error">An error occurred during the search.</p>`;
+        });
+    }
+
+    function openFullscreen(imageSrc) {
+      fullscreenImage.src = imageSrc;
+      fullscreenModal.style.display = 'flex';
+    }
+
+    function closeFullscreen() {
+      fullscreenModal.style.display = 'none';
+    }
+
+    closeFullscreenBtn.addEventListener('click', closeFullscreen);
+    fullscreenModal.addEventListener('click', (e) => {
+      if (e.target === fullscreenModal) { closeFullscreen(); }
+    });
+
+    function shareImage(imagePath) {
+      const textArea = document.createElement('textarea');
+      textArea.value = imagePath;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        const confirmMsg = document.getElementById('copy-confirm');
+        confirmMsg.style.display = 'block';
+        confirmMsg.style.opacity = '1';
+        setTimeout(() => {
+          confirmMsg.style.opacity = '0';
+          setTimeout(() => { confirmMsg.style.display = 'none'; }, 500);
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy link.');
+      }
+      document.body.removeChild(textArea);
+    }
+  </script>
+</body>
+
+</html>

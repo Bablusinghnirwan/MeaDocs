@@ -1,0 +1,35 @@
+# Flask Web Framework
+Flask
+
+# AI & Machine Learning Frameworks
+torch
+torchvision
+transformers
+sentence-transformers
+openai-clip
+vosk
+
+# Vector Search
+faiss-cpu
+
+# Data Handling & Numerics
+numpy
+pandas
+openpyxl
+
+# Document Processing
+pdfplumber
+PyMuPDF
+python-docx
+pytesseract
+
+# Image & Video Processing
+Pillow
+opencv-python
+
+# Audio Processing
+pydub
+
+# Utility & Others
+fuzzywuzzy
+tqdm

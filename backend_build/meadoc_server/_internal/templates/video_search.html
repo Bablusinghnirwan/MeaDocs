@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeaDocs - AI Video Search</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* --- Base Variables & Reset --- */
+    :root {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #020617;
+      --card-bg: #1e293b;
+      --input-bg: #0f172a;
+      --accent-color: #38bdf8;
+      --text-color: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      padding: 40px 20px;
+    }
+
+    /* Container Max-Width */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      animation: fadeIn 0.8s ease-out;
+      /* Ensure container stays below loader */
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- Header --- */
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin: 0;
+    }
+
+    p.subtitle {
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 40px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* Home Button */
+    .home-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .home-btn:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      color: white;
+    }
+
+    /* --- Action Sections (Cards) --- */
+    .action-section {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 20px;
+      font-weight: 600;
+      border-left: 4px solid var(--accent-color);
+      padding-left: 15px;
+    }
+
+    /* --- Inputs --- */
+    .input-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .input-group input[type="text"] {
+      flex-grow: 1;
+      max-width: 600px;
+      padding: 16px 25px;
+      font-size: 1rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      outline: none;
+      background: var(--input-bg);
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input[type="text"]:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+      background: #162032;
+    }
+
+    /* --- Modern Buttons --- */
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: transparent;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      overflow: hidden;
+      z-index: 1;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      min-width: 140px;
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: conic-gradient(from 90deg, transparent 0%, transparent 40%, var(--accent-color) 50%, transparent 60%, transparent 100%);
+      animation: borderSpin 3s linear infinite;
+      z-index: -2;
+    }
+
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      background: #0f172a;
+      border-radius: 9999px;
+      z-index: -1;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn:hover:not(:disabled)::after {
+      background: #1e293b;
+    }
+
+    .btn:hover:not(:disabled)::before {
+      animation-duration: 1.5s;
+      background: conic-gradient(from 90deg, transparent 0%, transparent 20%, #ffffff 50%, transparent 80%, transparent 100%);
+    }
+
+    @keyframes borderSpin {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* --- Results --- */
+    .results-section {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .result-item {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      margin-top: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .result-text {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+      font-weight: 500;
+    }
+
+    .result-item video {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #000;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    #search-section {
+      display: none;
+    }
+
+    /* =========================================
+       COOL LOADER CSS (Integrated & Recolored)
+       ========================================= */
+
+    /* Overlay to hide the app while loading */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      /* Dark background */
+      z-index: 9999;
+      display: none;
+      /* Hidden by default */
+      overflow: hidden;
+    }
+
+    .loading-text-label {
+      position: absolute;
+      bottom: 20%;
+      width: 100%;
+      text-align: center;
+      color: var(--accent-color);
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Loader container */
+    .loader {
+      position: absolute;
+      top: 50%;
+      margin-left: -50px;
+      left: 50%;
+      animation: speeder 0.4s linear infinite;
+    }
+
+    /* The "exhaust" / tail */
+    .loader>span {
+      height: 5px;
+      width: 35px;
+      background: var(--accent-color);
+      /* Changed from #000 */
+      position: absolute;
+      top: -19px;
+      left: 60px;
+      border-radius: 2px 10px 1px 0;
+    }
+
+    /* Base Body Construction */
+    .base span {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-right: 100px solid var(--accent-color);
+      /* Changed from #000 */
+      border-bottom: 6px solid transparent;
+    }
+
+    .base span:before {
+      content: "";
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      /* Changed from #000 */
+      position: absolute;
+      right: -110px;
+      top: -16px;
+    }
+
+    .base span:after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 0 solid transparent;
+      border-right: 55px solid var(--accent-color);
+      /* Changed from #000 */
+      border-bottom: 16px solid transparent;
+      top: -16px;
+      right: -98px;
+    }
+
+    /* Face / Cockpit */
+    .face {
+      position: absolute;
+      height: 12px;
+      width: 20px;
+      background: var(--accent-color);
+      /* Changed from #000 */
+      border-radius: 20px 20px 0 0;
+      transform: rotate(-40deg);
+      right: -125px;
+      top: -15px;
+    }
+
+    .face:after {
+      content: "";
+      height: 12px;
+      width: 12px;
+      background: var(--accent-color);
+      /* Changed from #000 */
+      right: 4px;
+      top: 7px;
+      position: absolute;
+      transform: rotate(40deg);
+      transform-origin: 50% 50%;
+      border-radius: 0 0 0 2px;
+    }
+
+    /* Speed lines (fazers) */
+    .loader>span>span:nth-child(1),
+    .loader>span>span:nth-child(2),
+    .loader>span>span:nth-child(3),
+    .loader>span>span:nth-child(4) {
+      width: 30px;
+      height: 1px;
+      background: var(--accent-color);
+      /* Changed from #000 */
+      position: absolute;
+      animation: fazer1 0.2s linear infinite;
+    }
+
+    .loader>span>span:nth-child(2) {
+      top: 3px;
+      animation: fazer2 0.4s linear infinite;
+    }
+
+    .loader>span>span:nth-child(3) {
+      top: 1px;
+      animation: fazer3 0.4s linear infinite;
+      animation-delay: -1s;
+    }
+
+    .loader>span>span:nth-child(4) {
+      top: 4px;
+      animation: fazer4 1s linear infinite;
+      animation-delay: -1s;
+    }
+
+    @keyframes fazer1 {
+      0% {
+        left: 0;
+      }
+
+      100% {
+        left: -80px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes fazer2 {
+      0% {
+        left: 0;
+      }
+
+      100% {
+        left: -100px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes fazer3 {
+      0% {
+        left: 0;
+      }
+
+      100% {
+        left: -50px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes fazer4 {
+      0% {
+        left: 0;
+      }
+
+      100% {
+        left: -150px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes speeder {
+      0% {
+        transform: translate(2px, 1px) rotate(0deg);
+      }
+
+      10% {
+        transform: translate(-1px, -3px) rotate(-1deg);
+      }
+
+      20% {
+        transform: translate(-2px, 0px) rotate(1deg);
+      }
+
+      30% {
+        transform: translate(1px, 2px) rotate(0deg);
+      }
+
+      40% {
+        transform: translate(1px, -1px) rotate(1deg);
+      }
+
+      50% {
+        transform: translate(-1px, 3px) rotate(-1deg);
+      }
+
+      60% {
+        transform: translate(-1px, 1px) rotate(0deg);
+      }
+
+      70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translate(-2px, -1px) rotate(1deg);
+      }
+
+      90% {
+        transform: translate(2px, 1px) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+      }
+    }
+
+    /* Long Fazers (Background speed lines) */
+    .longfazers {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .longfazers span {
+      position: absolute;
+      height: 2px;
+      width: 20%;
+      background: #ffffff;
+      /* White lines for contrast */
+      opacity: 0.3;
+    }
+
+    .longfazers span:nth-child(1) {
+      top: 20%;
+      animation: lf 0.6s linear infinite;
+      animation-delay: -5s;
+    }
+
+    .longfazers span:nth-child(2) {
+      top: 40%;
+      animation: lf2 0.8s linear infinite;
+      animation-delay: -1s;
+    }
+
+    .longfazers span:nth-child(3) {
+      top: 60%;
+      animation: lf3 0.6s linear infinite;
+    }
+
+    .longfazers span:nth-child(4) {
+      top: 80%;
+      animation: lf4 0.5s linear infinite;
+      animation-delay: -3s;
+    }
+
+    @keyframes lf {
+      0% {
+        left: 200%;
+      }
+
+      100% {
+        left: -200%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes lf2 {
+      0% {
+        left: 200%;
+      }
+
+      100% {
+        left: -200%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes lf3 {
+      0% {
+        left: 200%;
+      }
+
+      100% {
+        left: -100%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes lf4 {
+      0% {
+        left: 200%;
+      }
+
+      100% {
+        left: -100%;
+        opacity: 0;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .action-section {
+        padding: 25px;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .input-group input[type="text"],
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- LOADING OVERLAY (Hidden by default) -->
+  <div id="loading-overlay">
+    <div class="loader">
+      <span><span></span><span></span><span></span><span></span></span>
+      <div class="base">
+        <span></span>
+        <div class="face"></div>
+      </div>
+    </div>
+    <div class="longfazers">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="loading-text-label">PROCESSING VIDEO DATA...</div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <a href="/" class="home-btn" aria-label="Go to Homepage">
+        <i class="fa-solid fa-house"></i>
+      </a>
+      <h1>MeaDocs</h1>
+    </header>
+    <p class="subtitle">Ask AI, Find Your Moments - Video Search</p>
+
+    <!-- Section for Processing Videos -->
+    <div id="process-section" class="action-section">
+      <h2 class="section-title">1. Process Your Videos</h2>
+      <div class="input-group">
+        <input type="text" id="directory" placeholder="Enter directory path (e.g., C:/Videos)">
+        <button id="process-btn" class="btn" onclick="processVideos()">Process Videos</button>
+      </div>
+    </div>
+
+    <!-- Section for Searching Videos (Initially Hidden) -->
+    <div id="search-section">
+      <div class="action-section">
+        <h2 class="section-title">2. Search Your Videos</h2>
+        <div class="input-group">
+          <input type="text" id="query" placeholder="Enter search query (e.g., 'birthday cake')">
+          <button id="search-btn" class="btn" onclick="searchVideos()">Search</button>
+        </div>
+      </div>
+      <div id="search-results" class="results-section"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Helper to toggle overlay loader ---
+    function toggleLoader(show) {
+      const overlay = document.getElementById('loading-overlay');
+      overlay.style.display = show ? 'block' : 'none';
+    }
+
+    // Function to process videos
+    function processVideos() {
+      const directory = document.getElementById('directory').value;
+      if (!directory) {
+        alert('Please enter a directory path.');
+        return;
+      }
+
+      // Show Loader with initial text
+      toggleLoader(true);
+
+      // 1. Get Estimate
+      fetch("/estimate-time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ directory: directory, type: "video" })
+      })
+        .then(res => res.json())
+        .then(estData => {
+          if (estData.error) {
+            throw new Error(estData.error);
+          }
+
+          // 2. Update Loader Text
+          const seconds = estData.estimated_seconds;
+          const count = estData.count;
+          // Update the text inside the loader overlay
+          document.querySelector('.loading-text-label').innerText = `PROCESSING ${count} VIDEOS... (~${seconds}s)`;
+
+          // 3. Start Actual Processing
+          return fetch('/process_videos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `directory=${encodeURIComponent(directory)}`,
+          });
+        })
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => {
+          // Hide Loader
+          toggleLoader(false);
+
+          if (data.status === 'success' || data.success === true) {
+            // Switch UI to Search Mode
+            document.getElementById('process-section').style.display = 'none';
+            document.getElementById('search-section').style.display = 'block';
+            document.getElementById('search-results').innerHTML = '';
+          } else {
+            alert(data.message || 'Processing failed via backend.');
+          }
+        })
+        .catch((error) => {
+          toggleLoader(false);
+          console.error('Error:', error);
+
+          // --- FALLBACK FOR DEMO (Since backend might not be running) ---
+          // Uncomment this block if you want to see the transition even if fetch fails
+          /*
+          alert('Backend unreachable. Demo mode: Switching to Search.');
+          document.getElementById('process-section').style.display = 'none';
+          document.getElementById('search-section').style.display = 'block';
+          */
+
+          alert('Error: Could not connect to the backend server. Make sure your Python server is running.');
+        });
+    }
+
+    // Function to search videos
+    function searchVideos() {
+      const query = document.getElementById('query').value;
+      if (!query) {
+        alert('Please enter a search query.');
+        return;
+      }
+
+      // We can use the button spinner for search since it's usually faster
+      const btn = document.getElementById('search-btn');
+      const originalText = btn.innerText;
+      btn.innerText = 'Searching...';
+      btn.disabled = true;
+
+      fetch('/search_video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `query=${encodeURIComponent(query)}`,
+      })
+        .then(response => response.json())
+        .then(data => {
+          btn.innerText = originalText;
+          btn.disabled = false;
+
+          const resultDiv = document.getElementById('search-results');
+          resultDiv.innerHTML = '';
+
+          if (data.status === 'success') {
+            const videoPath = data.result.video_path;
+            const timestamp = data.result.timestamp;
+
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+
+            const text = document.createElement('p');
+            text.className = 'result-text';
+            text.innerText = `Best match found at ${timestamp} seconds:`;
+
+            const videoElement = document.createElement('video');
+            videoElement.controls = true;
+            videoElement.src = `/stream-video?path=${encodeURIComponent(videoPath)}`;
+
+            videoElement.addEventListener('loadedmetadata', function () {
+              videoElement.currentTime = timestamp;
+            });
+
+            resultItem.appendChild(text);
+            resultItem.appendChild(videoElement);
+            resultDiv.appendChild(resultItem);
+
+          } else {
+            resultDiv.innerHTML = `<p class="result-text" style="color: #f87171;">${data.message || 'No matches found.'}</p>`;
+          }
+        })
+        .catch((error) => {
+          btn.innerText = originalText;
+          btn.disabled = false;
+          console.error('Error:', error);
+          alert('An error occurred during search.');
+        });
+    }
+  </script>
+</body>
+
+</html>

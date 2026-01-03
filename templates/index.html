@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeaDocs - Smart Search Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* --- Base Styles --- */
+    :root {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #020617;
+      --text-color: #ffffff;
+      --accent-color: #38bdf8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      color: var(--text-color);
+      padding: 20px;
+      padding-top: 8vh;
+    }
+
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 1100px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 40px;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+    }
+
+    /* --- Button Group --- */
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      /* Slightly reduced gap */
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 40px;
+      /* Reduced margin */
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .button-group::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* --- Filter Button Styles --- */
+    @keyframes borderSpin {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .filter-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      /* Compact padding */
+      font-size: 0.9rem;
+      min-width: 130px;
+      flex-shrink: 0;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: white;
+      border-radius: 9999px;
+      overflow: hidden;
+      z-index: 1;
+      transition: transform 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .filter-btn::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: conic-gradient(from 90deg, transparent 0%, transparent 40%, #38bdf8 50%, transparent 60%, transparent 100%);
+      animation: borderSpin 3s linear infinite;
+      z-index: -2;
+    }
+
+    .filter-btn::after {
+      content: "";
+      position: absolute;
+      inset: 1.5px;
+      background: #1e293b;
+      border-radius: 9999px;
+      z-index: -1;
+      transition: background 0.3s ease;
+    }
+
+    .filter-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .filter-btn:hover::after {
+      background: #334155;
+    }
+
+    .filter-btn:active {
+      transform: scale(0.95);
+    }
+
+    .filter-btn i {
+      font-size: 1rem;
+      margin-right: 8px;
+      z-index: 2;
+      color: #38bdf8;
+      transition: color 0.3s ease;
+    }
+
+    .filter-btn:hover i {
+      color: white;
+    }
+
+    span {
+      z-index: 2;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>MeaDocs</h1>
+    <p>Smart Search Hub</p>
+
+    <!-- Top Filter Buttons -->
+    <div class="button-group">
+      <button class="filter-btn" onclick="window.location.href='/photo_search'">
+        <i class="fa-regular fa-images fa-beat"></i>
+        <span>Photos</span>
+      </button>
+
+      <button class="filter-btn" onclick="window.location.href='/video_search'">
+        <i class="fa-solid fa-video fa-fade"></i>
+        <span>Videos</span>
+      </button>
+
+      <button class="filter-btn" onclick="window.location.href='/audio_search'">
+        <i class="fa-solid fa-headphones fa-shake"></i>
+        <span>Audio</span>
+      </button>
+
+      <button class="filter-btn" onclick="window.location.href='/document_search'">
+        <i class="fa-regular fa-file-lines fa-beat"></i>
+        <span>Documents</span>
+      </button>
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+</body>
+
+</html>
